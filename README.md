@@ -40,7 +40,9 @@ $ ./out # Built executables are named "out"
 
 ### mandelbrot.bf
 
-![chart](chart.svg) \*[brainfuck.cr](https://github.com/crystal-lang/crystal/blob/master/samples/brainfuck.cr) can be found at the sample codes in the Crystal repository
+![chart](chart.svg)
+
+*[brainfuck.cr](https://github.com/crystal-lang/crystal/blob/master/samples/brainfuck.cr) can be found at the sample codes in the Crystal repository
 
 `jit` is slightly slower than `jit --no-opt` because optimizations can sometimes take longer than executing unoptimized code.
 
