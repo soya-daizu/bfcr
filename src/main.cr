@@ -5,6 +5,7 @@ require "./interpreter/interpreter"
 mode = nil
 filename = nil
 optimize = true
+output_name = "out"
 OptionParser.parse do |parser|
   parser.on("run", "Run in interpreter mode") do
     mode = 0
@@ -14,6 +15,10 @@ OptionParser.parse do |parser|
   end
   parser.on("build", "Build executable file") do
     mode = 2
+
+    parser.on("-o x", "Output filename") do |x|
+      output_name = x
+    end
   end
 
   parser.on("--no-opt", "Run/build without any optimization") do
@@ -46,5 +51,5 @@ when 1
 when 2
   compiler = Compiler.new(text)
   compiler.optimize if optimize
-  compiler.build_executable
+  compiler.build_executable(output_name)
 end

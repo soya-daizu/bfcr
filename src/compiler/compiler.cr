@@ -83,11 +83,11 @@ class Compiler
     main.call
   end
 
-  def build_executable
+  def build_executable(output_name : String)
     triple = LLVM.default_target_triple
     target = LLVM::Target.from_triple(triple)
     target_machine = target.create_target_machine(triple, opt_level: LLVM::CodeGenOptLevel::Aggressive)
-    target_machine.emit_obj_to_file(@mod, "out.o")
-    `gcc -o out out.o`
+    target_machine.emit_obj_to_file(@mod, "#{output_name}.o")
+    `gcc -o #{output_name} #{output_name}.o`
   end
 end
