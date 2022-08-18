@@ -22,28 +22,28 @@ module Translator
           optimized_loop = optimize_loop(bytecodes, open_bracket_offset)
         end
 
-        if !optimized_loop || optimized_loop.empty?
+        if optimized_loop && !optimized_loop.empty?
+          bytecodes[open_bracket_offset..] = optimized_loop
+        else
           open_bracket_bytecode = bytecodes[open_bracket_offset]
           open_bracket_bytecode.arg = bytecodes.size
           bytecodes[open_bracket_offset] = open_bracket_bytecode
           bytecodes.push(Bytecode.new(Bytecode::Type::JumpIfDataNotZero, open_bracket_offset))
-        else
-          bytecodes[open_bracket_offset..] = optimized_loop
         end
         pc += 1
       else
+        num_repeats = 1
         if optimize
           i = pc + 1
           while i < program_size && instructions[i] == instruction
             i += 1
           end
           num_repeats = i - pc
-        else
-          num_repeats = 1
         end
 
         type = Bytecode::Type.new(instruction)
-        bytecodes.push(Bytecode.new(type, num_repeats))
+        negative = instruction == '-' || instruction == '<'
+        bytecodes.push(Bytecode.new(type, negative ? -num_repeats : num_repeats))
         pc += num_repeats
       end
     end
@@ -53,39 +53,39 @@ module Translator
 
   private def optimize_loop(bytecodes : Array(Bytecode), loop_start : Int32)
     new_bytecodes = [] of Bytecode
+    loop_length = bytecodes.size - loop_start - 1
 
-    if bytecodes.size - loop_start == 2
-      repeated_bytecode = bytecodes[loop_start + 1]
-
-      case repeated_bytecode.type
-      when .inc_data?, .dec_data?
-        new_bytecodes.push(Bytecode.new(Bytecode::Type::LoopSetToZero, 0))
-      when .inc_ptr?
-        new_bytecodes.push(Bytecode.new(Bytecode::Type::LoopMovePtr, repeated_bytecode.arg))
-      when .dec_ptr?
-        new_bytecodes.push(Bytecode.new(Bytecode::Type::LoopMovePtr, -repeated_bytecode.arg))
-      end
-    elsif bytecodes.size - loop_start == 5
-      if bytecodes[loop_start + 1].arg == 1 && bytecodes[loop_start + 3].arg == 1 &&
-         bytecodes[loop_start + 2].arg == bytecodes[loop_start + 4].arg
-        case {bytecodes[loop_start + 1].type,
-              bytecodes[loop_start + 2].type,
-              bytecodes[loop_start + 3].type,
-              bytecodes[loop_start + 4].type}
-        when {Bytecode::Type::DecData,
-              Bytecode::Type::IncPtr,
-              Bytecode::Type::IncData,
-              Bytecode::Type::DecPtr}
-          new_bytecodes.push(Bytecode.new(Bytecode::Type::LoopMoveData, bytecodes[loop_start + 2].arg))
-        when {Bytecode::Type::DecData,
-              Bytecode::Type::DecPtr,
-              Bytecode::Type::IncData,
-              Bytecode::Type::IncPtr}
-          new_bytecodes.push(Bytecode.new(Bytecode::Type::LoopMoveData, -bytecodes[loop_start + 2].arg))
-        end
-      end
+    if loop_length == 1
+      loop_single(bytecodes[loop_start + 1, loop_length], new_bytecodes)
+    elsif loop_length == 4
+      loop_move_data(bytecodes[loop_start + 1, loop_length], new_bytecodes)
+    else
     end
 
     new_bytecodes
+  end
+
+  private def loop_single(bytecodes : Array(Bytecode), new_bytecodes : Array(Bytecode))
+    # Detect patterns: [+] [-] [>] [<]
+    repeated_bytecode = bytecodes.first
+
+    case repeated_bytecode.type
+    when .inc_data?
+      new_bytecodes.push(Bytecode.new(Bytecode::Type::LoopSetToZero, 0))
+    when .inc_ptr?
+      new_bytecodes.push(Bytecode.new(Bytecode::Type::LoopMovePtr, repeated_bytecode.arg))
+    end
+  end
+
+  private def loop_move_data(bytecodes : Array(Bytecode), new_bytecodes : Array(Bytecode))
+    # Detect patterns: [->+<] [-<+>]
+    if bytecodes[0].type == Bytecode::Type::IncData &&
+       bytecodes[1].type == Bytecode::Type::IncPtr &&
+       bytecodes[2].type == Bytecode::Type::IncData &&
+       bytecodes[3].type == Bytecode::Type::IncPtr &&
+       bytecodes[0].arg == -bytecodes[2].arg &&
+       bytecodes[1].arg == -bytecodes[3].arg
+      new_bytecodes.push(Bytecode.new(Bytecode::Type::LoopMoveData, bytecodes[1].arg))
+    end
   end
 end

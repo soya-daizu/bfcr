@@ -8,9 +8,7 @@ struct Bytecode
   enum Type
     Invalid
     IncPtr
-    DecPtr
     IncData
-    DecData
     ReadStdin
     WriteStdout
     JumpIfDataZero
@@ -21,14 +19,10 @@ struct Bytecode
 
     def self.new(char : Char)
       case char
-      when '>'
+      when '>', '<'
         IncPtr
-      when '<'
-        DecPtr
-      when '+'
+      when '+', '-'
         IncData
-      when '-'
-        DecData
       when ','
         ReadStdin
       when '.'

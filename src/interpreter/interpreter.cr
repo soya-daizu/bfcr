@@ -24,12 +24,8 @@ class Interpreter
       case bytecode.type
       when .inc_ptr?
         dataptr += bytecode.arg
-      when .dec_ptr?
-        dataptr -= bytecode.arg
       when .inc_data?
         memory[dataptr] &+= bytecode.arg
-      when .dec_data?
-        memory[dataptr] &-= bytecode.arg
       when .read_stdin?
         bytecode.arg.times do
           memory[dataptr] = gets(1).not_nil!.byte_at(0)
