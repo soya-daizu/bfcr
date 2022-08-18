@@ -13,7 +13,7 @@ class Interpreter
   end
 
   def run
-    memory = Array.new(30000, 0_u8)
+    memory = Pointer(UInt8).malloc(30000, 0_u8)
     pc = 0
     dataptr = 0
     stdout_buffer = IO::Memory.new(256)
