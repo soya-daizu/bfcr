@@ -12,7 +12,7 @@ module Translator
 
       if instruction == '['
         open_bracket_stack.push(bytecodes.size)
-        bytecodes.push(Bytecode.new(Bytecode::Type::JumpIfDataZero, 0))
+        bytecodes.push(Bytecode.new(Bytecode::Type::JumpIfDataZero))
         pc += 1
       elsif instruction == ']'
         raise "unmarched closing ']' at pc=#{pc}" if open_bracket_stack.empty?
@@ -71,9 +71,9 @@ module Translator
 
     case repeated_bytecode.type
     when .inc_data?
-      new_bytecodes.push(Bytecode.new(Bytecode::Type::LoopSetToZero, 0))
+      new_bytecodes.push(Bytecode.new(Bytecode::Type::Clear))
     when .inc_ptr?
-      new_bytecodes.push(Bytecode.new(Bytecode::Type::LoopMovePtr, repeated_bytecode.arg))
+      new_bytecodes.push(Bytecode.new(Bytecode::Type::Scan, repeated_bytecode.arg))
     end
   end
 
@@ -85,7 +85,7 @@ module Translator
        bytecodes[3].type == Bytecode::Type::IncPtr &&
        bytecodes[0].arg == -bytecodes[2].arg &&
        bytecodes[1].arg == -bytecodes[3].arg
-      new_bytecodes.push(Bytecode.new(Bytecode::Type::LoopMoveData, bytecodes[1].arg))
+      new_bytecodes.push(Bytecode.new(Bytecode::Type::Copy, bytecodes[1].arg))
     end
   end
 end

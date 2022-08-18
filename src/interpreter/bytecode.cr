@@ -2,7 +2,7 @@ struct Bytecode
   getter type : Type
   property arg : Int32
 
-  def initialize(@type, @arg)
+  def initialize(@type, @arg = 0)
   end
 
   enum Type
@@ -13,9 +13,9 @@ struct Bytecode
     WriteStdout
     JumpIfDataZero
     JumpIfDataNotZero
-    LoopSetToZero
-    LoopMovePtr
-    LoopMoveData
+    Clear
+    Scan
+    Copy
 
     def self.new(char : Char)
       case char

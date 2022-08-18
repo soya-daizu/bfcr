@@ -40,13 +40,13 @@ class Interpreter
             stdout_buffer.clear
           end
         end
-      when .loop_set_to_zero?
+      when .clear?
         memory[dataptr] = 0
-      when .loop_move_ptr?
+      when .scan?
         until memory[dataptr] == 0
           dataptr += bytecode.arg
         end
-      when .loop_move_data?
+      when .copy?
         if memory[dataptr] > 0
           destptr = dataptr + bytecode.arg
           memory[destptr] &+= memory[dataptr]
