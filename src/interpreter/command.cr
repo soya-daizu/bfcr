@@ -1,4 +1,4 @@
-struct Bytecode
+struct Command
   getter type : Type
   property arg : Int32
 

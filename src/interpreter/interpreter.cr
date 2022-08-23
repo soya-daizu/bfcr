@@ -1,4 +1,4 @@
-require "./bytecode"
+require "./command"
 require "./translator"
 
 class Interpreter
@@ -9,7 +9,7 @@ class Interpreter
       instructions.push(char) if "[]<>+-,.".includes?(char)
     end
 
-    @bytecodes = Translator.translate_program(instructions, optimize)
+    @commands = Translator.translate_program(instructions, optimize)
   end
 
   def run
@@ -18,21 +18,21 @@ class Interpreter
     dataptr = 0
     stdout_buffer = IO::Memory.new(256)
 
-    bytecodes_size = @bytecodes.size
-    while pc < bytecodes_size
-      bytecode = @bytecodes[pc]
-      case bytecode.type
+    commands_size = @commands.size
+    while pc < commands_size
+      command = @commands[pc]
+      case command.type
       when .inc_ptr?
-        dataptr += bytecode.arg
+        dataptr += command.arg
       when .inc_data?
-        memory[dataptr] &+= bytecode.arg
+        memory[dataptr] &+= command.arg
       when .read_stdin?
-        bytecode.arg.times do
+        command.arg.times do
           memory[dataptr] = gets(1).not_nil!.byte_at(0)
         end
       when .write_stdout?
         chr = memory[dataptr].chr
-        bytecode.arg.times do
+        command.arg.times do
           stdout_buffer << chr
 
           if chr == '\n'
@@ -44,20 +44,20 @@ class Interpreter
         memory[dataptr] = 0
       when .scan?
         until memory[dataptr] == 0
-          dataptr += bytecode.arg
+          dataptr += command.arg
         end
       when .copy?
         if memory[dataptr] > 0
-          destptr = dataptr + bytecode.arg
+          destptr = dataptr + command.arg
           memory[destptr] &+= memory[dataptr]
           memory[dataptr] = 0
         end
       when .jump_if_data_zero?
-        pc = bytecode.arg if memory[dataptr] == 0
+        pc = command.arg if memory[dataptr] == 0
       when .jump_if_data_not_zero?
-        pc = bytecode.arg if memory[dataptr] != 0
+        pc = command.arg if memory[dataptr] != 0
       else
-        raise "Invalid bytecode encountered on pc=#{pc}"
+        raise "Invalid command encountered on pc=#{pc}"
       end
 
       pc += 1

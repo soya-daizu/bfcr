@@ -1,8 +1,8 @@
 module Translator
   extend self
 
-  def translate_program(instructions : Array(Char), optimize : Bool) : Array(Bytecode)
-    bytecodes = [] of Bytecode
+  def translate_program(instructions : Array(Char), optimize : Bool) : Array(Command)
+    commands = [] of Command
     pc = 0
     program_size = instructions.size
     open_bracket_stack = [] of Int32
@@ -11,24 +11,24 @@ module Translator
       instruction = instructions[pc]
 
       if instruction == '['
-        open_bracket_stack.push(bytecodes.size)
-        bytecodes.push(Bytecode.new(Bytecode::Type::JumpIfDataZero))
+        open_bracket_stack.push(commands.size)
+        commands.push(Command.new(Command::Type::JumpIfDataZero))
         pc += 1
       elsif instruction == ']'
         raise "unmarched closing ']' at pc=#{pc}" if open_bracket_stack.empty?
         open_bracket_offset = open_bracket_stack.pop
 
         if optimize
-          optimized_loop = optimize_loop(bytecodes, open_bracket_offset)
+          optimized_loop = optimize_loop(commands, open_bracket_offset)
         end
 
         if optimized_loop && !optimized_loop.empty?
-          bytecodes[open_bracket_offset..] = optimized_loop
+          commands[open_bracket_offset..] = optimized_loop
         else
-          open_bracket_bytecode = bytecodes[open_bracket_offset]
-          open_bracket_bytecode.arg = bytecodes.size
-          bytecodes[open_bracket_offset] = open_bracket_bytecode
-          bytecodes.push(Bytecode.new(Bytecode::Type::JumpIfDataNotZero, open_bracket_offset))
+          open_bracket_command = commands[open_bracket_offset]
+          open_bracket_command.arg = commands.size
+          commands[open_bracket_offset] = open_bracket_command
+          commands.push(Command.new(Command::Type::JumpIfDataNotZero, open_bracket_offset))
         end
         pc += 1
       else
@@ -41,51 +41,51 @@ module Translator
           num_repeats = i - pc
         end
 
-        type = Bytecode::Type.new(instruction)
+        type = Command::Type.new(instruction)
         negative = instruction == '-' || instruction == '<'
-        bytecodes.push(Bytecode.new(type, negative ? -num_repeats : num_repeats))
+        commands.push(Command.new(type, negative ? -num_repeats : num_repeats))
         pc += num_repeats
       end
     end
 
-    bytecodes
+    commands
   end
 
-  private def optimize_loop(bytecodes : Array(Bytecode), loop_start : Int32)
-    new_bytecodes = [] of Bytecode
-    loop_length = bytecodes.size - loop_start - 1
+  private def optimize_loop(commands : Array(Command), loop_start : Int32)
+    new_commands = [] of Command
+    loop_length = commands.size - loop_start - 1
 
     if loop_length == 1
-      loop_single(bytecodes[loop_start + 1, loop_length], new_bytecodes)
+      loop_single(commands[loop_start + 1, loop_length], new_commands)
     elsif loop_length == 4
-      loop_move_data(bytecodes[loop_start + 1, loop_length], new_bytecodes)
+      loop_move_data(commands[loop_start + 1, loop_length], new_commands)
     else
     end
 
-    new_bytecodes
+    new_commands
   end
 
-  private def loop_single(bytecodes : Array(Bytecode), new_bytecodes : Array(Bytecode))
+  private def loop_single(commands : Array(Command), new_commands : Array(Command))
     # Detect patterns: [+] [-] [>] [<]
-    repeated_bytecode = bytecodes.first
+    repeated_command = commands.first
 
-    case repeated_bytecode.type
+    case repeated_command.type
     when .inc_data?
-      new_bytecodes.push(Bytecode.new(Bytecode::Type::Clear))
+      new_commands.push(Command.new(Command::Type::Clear))
     when .inc_ptr?
-      new_bytecodes.push(Bytecode.new(Bytecode::Type::Scan, repeated_bytecode.arg))
+      new_commands.push(Command.new(Command::Type::Scan, repeated_command.arg))
     end
   end
 
-  private def loop_move_data(bytecodes : Array(Bytecode), new_bytecodes : Array(Bytecode))
+  private def loop_move_data(commands : Array(Command), new_commands : Array(Command))
     # Detect patterns: [->+<] [-<+>]
-    if bytecodes[0].type == Bytecode::Type::IncData &&
-       bytecodes[1].type == Bytecode::Type::IncPtr &&
-       bytecodes[2].type == Bytecode::Type::IncData &&
-       bytecodes[3].type == Bytecode::Type::IncPtr &&
-       bytecodes[0].arg == -bytecodes[2].arg &&
-       bytecodes[1].arg == -bytecodes[3].arg
-      new_bytecodes.push(Bytecode.new(Bytecode::Type::Copy, bytecodes[1].arg))
+    if commands[0].type == Command::Type::IncData &&
+       commands[1].type == Command::Type::IncPtr &&
+       commands[2].type == Command::Type::IncData &&
+       commands[3].type == Command::Type::IncPtr &&
+       commands[0].arg == -commands[2].arg &&
+       commands[1].arg == -commands[3].arg
+      new_commands.push(Command.new(Command::Type::Copy, commands[1].arg))
     end
   end
 end
