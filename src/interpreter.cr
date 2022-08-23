@@ -3,12 +3,7 @@ require "./translator"
 
 class Interpreter
   def initialize(text : String, optimize : Bool)
-    instructions = [] of Char
-
-    text.each_char do |char|
-      instructions.push(char) if "[]<>+-,.".includes?(char)
-    end
-
+    instructions = text.gsub(/[^\[\]<>+\-,\.]/, "").chars
     @commands = Translator.translate_program(instructions, optimize)
   end
 

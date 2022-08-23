@@ -1,5 +1,6 @@
 require "llvm"
 require "./ir_builder"
+require "./translator"
 
 class Compiler
   def initialize(text : String)
@@ -19,12 +20,9 @@ class Compiler
     @ctx = LLVM::Context.new(LibLLVM.orc_thread_safe_context_get_context(@ts_ctx))
     @mod = @ctx.new_module("bfcr")
 
-    instructions = [] of Char
-    text.each_char do |char|
-      instructions.push(char) if "[]<>+-,.".includes?(char)
-    end
-
-    builder = IRBuilder.new(@ctx, @mod, instructions)
+    instructions = text.gsub(/[^\[\]<>+\-,\.]/, "").chars
+    commands = Translator.translate_program(instructions, true)
+    builder = IRBuilder.new(@ctx, @mod, commands)
     builder.build
   end
 
