@@ -44,9 +44,7 @@ $ ./out # Built executables are named "out"
 
 *[brainfuck.cr](https://github.com/crystal-lang/crystal/blob/master/samples/brainfuck.cr) can be found at the sample codes in the Crystal repository
 
-`jit` is slightly slower than `jit --no-opt` because optimizations can sometimes take longer than executing unoptimized code.
-
-`build` and `build --no-opt` doesn't include the time it took to compile the program.
+`build` and `build --no-opt` does not take compile time into account.
 
 ## Contributing
 
