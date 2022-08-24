@@ -3,7 +3,7 @@ require "./ir_builder"
 require "./translator"
 
 class Compiler
-  def initialize(text : String)
+  def initialize(text : String, optimize : Bool)
     triple = LLVM.default_target_triple
     architecture = triple.split('-').first
     case architecture
@@ -21,7 +21,7 @@ class Compiler
     @mod = @ctx.new_module("bfcr")
 
     instructions = text.gsub(/[^\[\]<>+\-,\.]/, "").chars
-    commands = Translator.translate_program(instructions, true)
+    commands = Translator.translate_program(instructions, optimize)
     builder = IRBuilder.new(@ctx, @mod, commands)
     builder.build
   end

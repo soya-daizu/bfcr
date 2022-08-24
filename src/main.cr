@@ -45,11 +45,11 @@ when 0
   interpreter = Interpreter.new(text, optimize)
   interpreter.run
 when 1
-  compiler = Compiler.new(text)
+  compiler = Compiler.new(text, optimize)
   compiler.optimize if optimize
   compiler.run_jit
 when 2
-  compiler = Compiler.new(text)
+  compiler = Compiler.new(text, optimize)
   compiler.optimize if optimize
   compiler.build_executable(output_name)
 end
