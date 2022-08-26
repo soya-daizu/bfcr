@@ -15,7 +15,7 @@ module Translator
         commands.push(Command.new(Command::Type::JumpIfDataZero))
         pc += 1
       elsif instruction == ']'
-        raise "unmarched closing ']' at pc=#{pc}" if open_bracket_stack.empty?
+        raise "unmatched closing ']' at pc=#{pc}" if open_bracket_stack.empty?
         open_bracket_offset = open_bracket_stack.pop
 
         if optimize
@@ -35,7 +35,7 @@ module Translator
         num_repeats = 1
         if optimize
           i = pc + 1
-          while i < program_size && instructions[i] == instruction
+          while instructions[i]? == instruction
             i += 1
           end
           num_repeats = i - pc

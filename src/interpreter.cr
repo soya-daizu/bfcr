@@ -23,7 +23,7 @@ class Interpreter
         memory[dataptr] &+= command.arg
       when .read_stdin?
         command.arg.times do
-          memory[dataptr] = gets(1).not_nil!.byte_at(0)
+          memory[dataptr] = gets(1).try(&.byte_at?(0)) || 0_u8
         end
       when .write_stdout?
         chr = memory[dataptr].chr
