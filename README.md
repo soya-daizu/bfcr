@@ -29,7 +29,7 @@ $ ./bin/bfcr run sample/mandelbrot.bf # Run in interpreter mode
 $ ./bin/bfcr run sample/mandelbrot.bf --no-opt # No peephole optimizations
 
 $ ./bin/bfcr jit sample/mandelbrot.bf # Run in JIT mode
-$ ./bin/bfcr jit sample/mandelbrot.bf --no-opt # Execute unoptimized IR
+$ ./bin/bfcr jit sample/mandelbrot.bf --no-opt # No peephole optimizations & execute unoptimized IR
 
 $ ./bin/bfcr build sample/mandelbrot.bf # Build executable
 $ ./bin/bfcr build sample/mandelbrot.bf --no-opt # Also without optimizations
@@ -38,13 +38,31 @@ $ ./out # Built executables are named "out"
 
 ## Benchmarks
 
+`build` and `build --no-opt` does not take compile time into account.
+
+### factor.bf
+
+| run   | run (no opt) | jit   | jit (no opt) | build | build (no opt) |
+| ----- | ------------ | ----- | ------------ | ----- | -------------- |
+| 3.577 | 14.031       | 0.551 | 1.543        | 0.227 | 1.108          |
+
+![chart](media/factor.png)
+
 ### mandelbrot.bf
 
-![chart](chart.svg)
+| run   | run (no opt) | jit   | jit (no opt) | build | build (no opt) |
+| ----- | ------------ | ----- | ------------ | ----- | -------------- |
+| 7.723 | 46.326       | 3.487 | 4.255        | 1.286 | 3.701          |
 
-*[brainfuck.cr](https://github.com/crystal-lang/crystal/blob/master/samples/brainfuck.cr) can be found at the sample codes in the Crystal repository
+![chart](media/mandelbrot.png)
 
-`build` and `build --no-opt` does not take compile time into account.
+### hanoi.bf
+
+| run   | run (no opt) | jit   | jit (no opt) | build | build (no opt) |
+| ----- | ------------ | ----- | ------------ | ----- | -------------- |
+| 0.628 | 22.375       | 8.642 | 17.552       | 0.085 | 8.882          |
+
+![chart](media/hanoi.png)
 
 ## Contributing
 
@@ -56,4 +74,4 @@ $ ./out # Built executables are named "out"
 
 ## Contributors
 
-- [soya_daizu](https://github.com/soya-daizu)- creator and maintainer
+- [soya_daizu](https://github.com/soya-daizu) - creator and maintainer
