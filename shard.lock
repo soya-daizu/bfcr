@@ -1,2 +1,6 @@
 version: 2.0
-shards: {}
+shards:
+  ishi:
+    git: https://github.com/toddsundsted/ishi.git
+    version: 0.7.5
+

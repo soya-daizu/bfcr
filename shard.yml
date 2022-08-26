@@ -7,6 +7,12 @@ authors:
 targets:
   bfcr:
     main: src/main.cr
+  benchmark:
+    main: src/benchmark.cr
+
+dependencies:
+  ishi:
+    github: toddsundsted/ishi
 
 crystal: 1.5.0
 
