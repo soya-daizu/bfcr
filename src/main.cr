@@ -1,6 +1,6 @@
 require "option_parser"
-require "./compiler"
-require "./interpreter"
+require "./bfcr/compiler"
+require "./bfcr/interpreter"
 
 mode = nil
 filename = nil
