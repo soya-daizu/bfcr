@@ -40,27 +40,31 @@ $ ./out # Built executables are named "out"
 
 `build` and `build --no-opt` does not take compile time into account.
 
+\*[brainfuck.cr](https://gist.github.com/soya-daizu/16eed302d7d4d55181f5f5243ef08a50) is a patched version of brainfuck interpreter found in the official Crystal examples. The original source code can be found at: https://github.com/crystal-lang/crystal/blob/master/samples/brainfuck.cr
+
 ### factor.bf
 
-| run   | run (no opt) | jit   | jit (no opt) | build | build (no opt) |
-| ----- | ------------ | ----- | ------------ | ----- | -------------- |
-| 3.577 | 14.031       | 0.551 | 1.543        | 0.227 | 1.108          |
+Used "179424691" as an input
+
+| brainfuck.cr | run  | run (no opt) | jit   | jit (no opt) | build | build (no opt) |
+| ------------ | ---- | ------------ | ----- | ------------ | ----- | -------------- |
+| 14.196       | 3.05 | 11.647       | 0.517 | 1.45         | 0.216 | 1.065          |
 
 ![chart](media/factor.png)
 
 ### mandelbrot.bf
 
-| run   | run (no opt) | jit   | jit (no opt) | build | build (no opt) |
-| ----- | ------------ | ----- | ------------ | ----- | -------------- |
-| 7.723 | 46.326       | 3.487 | 4.255        | 1.286 | 3.701          |
+| brainfuck.cr | run   | run (no opt) | jit   | jit (no opt) | build | build (no opt) |
+| ------------ | ----- | ------------ | ----- | ------------ | ----- | -------------- |
+| 47.77        | 6.591 | 34.954       | 2.989 | 4.001        | 1.234 | 3.549          |
 
 ![chart](media/mandelbrot.png)
 
 ### hanoi.bf
 
-| run   | run (no opt) | jit   | jit (no opt) | build | build (no opt) |
-| ----- | ------------ | ----- | ------------ | ----- | -------------- |
-| 0.628 | 22.375       | 8.642 | 17.552       | 0.085 | 8.882          |
+| brainfuck.cr | run   | run (no opt) | jit  | jit (no opt) | build | build (no opt) |
+| ------------ | ----- | ------------ | ---- | ------------ | ----- | -------------- |
+| 43.191       | 0.483 | 18.922       | 7.86 | 16.873       | 0.075 | 8.559          |
 
 ![chart](media/hanoi.png)
 

@@ -5,3 +5,5 @@
 *.dwarf
 out
 *.o
+patched_brainfuck
+patched_brainfuck.cr
