@@ -3,8 +3,15 @@ require "http/client"
 require "ishi/png"
 
 EXAMPLE_INTERPRETER_URL = "https://gist.githubusercontent.com/soya-daizu/16eed302d7d4d55181f5f5243ef08a50/raw/0d7effeffb64808b5f8717d3013ef65b8d746eec/patched_brainfuck.cr"
+
+def build_bfcr
+  puts "Bfcr not found. Now building..."
+  `shards build --release`
+  raise "Building bfcr failed" unless $?.success?
+end
+
 def build_example_interpreter
-  puts "Downloading example interpreter..."
+  puts "Example interpreter not found. Downloading..."
   HTTP::Client.get(EXAMPLE_INTERPRETER_URL) do |response|
     File.open("patched_brainfuck.cr", "w") do |file|
       file.print(response.body_io.gets_to_end)
@@ -33,7 +40,7 @@ end
 def plot_graph(program : String, results : Hash(String, Time::Span))
   File.open("media/#{program}.png", "w") do |file|
     Ishi.new(file) do
-      x = (1..7).to_a
+      x = (1..results.size).to_a
       y = results.values.map(&.to_f)
       xtics = results.keys.map_with_index { |m, i| {(i + 1).to_f, m} }.to_h
 
@@ -72,45 +79,39 @@ def plot_table(results : Hash(String, Time::Span))
   end
 end
 
-bfcr_exists = File.exists?("bin/bfcr")
-unless bfcr_exists
-  puts "Bfcr not found. Now building..."
-  `shards build --release`
-  raise "Building bfcr failed" unless $?.success?
-end
-
+build_bfcr unless File.exists?("bin/bfcr")
 build_example_interpreter unless File.exists?("patched_brainfuck")
 
 programs = Dir.glob("samples/*.bf")
-programs.each do |program|
-  program_name = program.match(/\w+\/(\w+).bf/).try(&.[1]) || "unknown"
+programs.each do |program_path|
+  program_name = program_path.match(/\w+\/(\w+)\.bf/).try(&.[1]) || "unknown"
   puts "PROGRAM: #{program_name}.bf"
   results = {} of String => Time::Span
 
-  input = if program == "samples/factor.bf"
+  input = if program_name == "factor"
             %q(echo "179424691\n" | )
           else
             ""
           end
 
-  results["brainfuck.cr"] = perform("#{input}./patched_brainfuck #{program}")
+  results["brainfuck.cr"] = perform("#{input}./patched_brainfuck #{program_path}")
 
-  results["run"] = perform("#{input}bin/bfcr run #{program}")
+  results["run"] = perform("#{input}bin/bfcr run #{program_path}")
 
-  results["run (no opt)"] = perform("#{input}bin/bfcr run #{program} --no-opt")
+  results["run (no opt)"] = perform("#{input}bin/bfcr run #{program_path} --no-opt")
 
-  results["jit"] = perform("#{input}bin/bfcr jit #{program}")
+  results["jit"] = perform("#{input}bin/bfcr jit #{program_path}")
 
-  results["jit (no opt)"] = perform("#{input}bin/bfcr jit #{program} --no-opt")
+  results["jit (no opt)"] = perform("#{input}bin/bfcr jit #{program_path} --no-opt")
 
-  puts "Building #{program} ..."
-  `bin/bfcr build #{program}`
-  raise "Building #{program} failed" unless $?.success?
+  puts "Building #{program_name}.bf ..."
+  `bin/bfcr build #{program_path}`
+  raise "Building #{program_name}.bf failed" unless $?.success?
   results["build"] = perform("#{input}./out")
 
-  puts "Building #{program} --no-opt ..."
-  `bin/bfcr build #{program} --no-opt`
-  raise "Building #{program} --no-opt failed" unless $?.success?
+  puts "Building #{program_name}.bf --no-opt ..."
+  `bin/bfcr build #{program_path} --no-opt`
+  raise "Building #{program_name}.bf --no-opt failed" unless $?.success?
   results["build (no opt)"] = perform("#{input}./out")
 
   plot_graph(program_name, results)
