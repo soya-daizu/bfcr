@@ -48,9 +48,9 @@ class IRBuilder
         emit_loop_start
         emit_move_ptr(command.arg)
         emit_loop_end
-      when .copy?
+      when .multiply?
         emit_if_not_zero
-        emit_copy
+        emit_multiply
         emit_if_end
         if_count += 1
       when .jump_if_data_zero?
@@ -145,7 +145,7 @@ class IRBuilder
     builder.store(@ctx.int8.const_int(0), element_addr)
   end
 
-  private macro emit_copy
+  private macro emit_multiply
     dataptr = builder.load(dataptr_addr, "dataptr")
     element_addr = builder.inbounds_gep(memory, dataptr, "element_addr")
     element = builder.load(element_addr, "element")
@@ -154,6 +154,9 @@ class IRBuilder
     dest_element_addr = builder.inbounds_gep(memory, dest_dataptr, "dest_element_addr")
     dest_element = builder.load(dest_element_addr, "dest_element")
     inc_dest_element = builder.add(dest_element, element, "inc_dest_element")
+    if command.arg2 != 1
+      inc_dest_element = builder.mul(inc_dest_element, @ctx.int32.const_int(command.arg2), "mul_dest_element")
+    end
     builder.store(inc_dest_element, dest_element_addr)
     builder.store(@ctx.int8.const_int(0), element_addr)
   end

@@ -41,10 +41,10 @@ class Interpreter
         until memory[dataptr] == 0
           dataptr += command.arg
         end
-      when .copy?
-        if memory[dataptr] > 0
+      when .multiply?
+        if memory[dataptr] != 0
           destptr = dataptr + command.arg
-          memory[destptr] &+= memory[dataptr]
+          memory[destptr] &+= memory[dataptr] * command.arg2
           memory[dataptr] = 0
         end
       when .jump_if_data_zero?

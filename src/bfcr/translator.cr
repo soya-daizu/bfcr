@@ -59,7 +59,6 @@ module Translator
       loop_single(commands[loop_start + 1, loop_length], new_commands)
     elsif loop_length == 4
       loop_move_data(commands[loop_start + 1, loop_length], new_commands)
-    else
     end
 
     new_commands
@@ -83,9 +82,9 @@ module Translator
        commands[1].type == Command::Type::IncPtr &&
        commands[2].type == Command::Type::IncData &&
        commands[3].type == Command::Type::IncPtr &&
-       commands[0].arg == -commands[2].arg &&
+       commands[0].arg == -1 && commands[2].arg > 0 &&
        commands[1].arg == -commands[3].arg
-      new_commands.push(Command.new(Command::Type::Copy, commands[1].arg))
+      new_commands.push(Command.new(Command::Type::Multiply, commands[1].arg, commands[2].arg))
     end
   end
 end

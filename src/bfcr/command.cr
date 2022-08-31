@@ -1,8 +1,9 @@
 struct Command
   getter type : Type
   property arg : Int32
+  property arg2 : Int32
 
-  def initialize(@type, @arg = 0)
+  def initialize(@type, @arg = 0, @arg2 = 0)
   end
 
   enum Type
@@ -15,7 +16,7 @@ struct Command
     JumpIfDataNotZero
     Clear
     Scan
-    Copy
+    Multiply
 
     def self.new(char : Char)
       case char
