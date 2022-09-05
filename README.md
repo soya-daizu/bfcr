@@ -55,6 +55,7 @@ The `build` mode in general emits the fastest codes to excecute, but as mentione
 Used "179424691" as an input
 
 | Mode | brainfuck.cr | run    | run (no opt) | jit    | jit (no opt) | build                        | build (no opt)               |
+| ---- | ------------ | ------ | ------------ | ------ | ------------ | ---------------------------- | ---------------------------- |
 | Time | 14.635s      | 3.002s | 12.423s      | 0.576s | 1.525s       | 0.251s (+ 0.483s build time) | 1.112s (+ 0.625s build time) |
 
 ![chart](media/factor.png)
@@ -62,6 +63,7 @@ Used "179424691" as an input
 ### mandelbrot.bf
 
 | Mode | brainfuck.cr | run    | run (no opt) | jit    | jit (no opt) | build                        | build (no opt)               |
+| ---- | ------------ | ------ | ------------ | ------ | ------------ | ---------------------------- | ---------------------------- |
 | Time | 49.216s      | 6.719s | 35.57s       | 3.236s | 4.132s       | 1.265s (+ 2.186s build time) | 3.604s (+ 0.619s build time) |
 
 ![chart](media/mandelbrot.png)
@@ -69,6 +71,7 @@ Used "179424691" as an input
 ### hanoi.bf
 
 | Mode | brainfuck.cr | run    | run (no opt) | jit    | jit (no opt) | build                        | build (no opt)               |
+| ---- | ------------ | ------ | ------------ | ------ | ------------ | ---------------------------- | ---------------------------- |
 | Time | 42.593s      | 0.483s | 20.3s        | 8.576s | 17.608s      | 0.075s (+ 8.508s build time) | 8.769s (+ 8.748s build time) |
 
 ![chart](media/hanoi.png)

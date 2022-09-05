@@ -78,9 +78,11 @@ def plot_table(exec_times : Hash(String, Time::Span), build_times : Hash(String,
     titles.push(key_str)
     values.push(time_str)
   end
+  h_separators = titles.map(&.gsub(/./, '-'))
 
   String.build do |str|
     str << "| Mode | " << titles.join(" | ") << " |" << '\n'
+    str << "| ---- | " << h_separators.join(" | ") << " |" << '\n'
     str << "| Time | " << values.join(" | ") << " |" << '\n'
   end
 end
