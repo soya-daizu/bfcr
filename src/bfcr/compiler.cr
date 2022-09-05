@@ -27,6 +27,7 @@ class Compiler
   end
 
   def optimize
+    puts "Optimizing..."
     pm_builder = LLVM::PassManagerBuilder.new
     pm_builder.opt_level = 3
     pm_builder.size_level = 0
@@ -82,6 +83,7 @@ class Compiler
   end
 
   def build_executable(output_name : String)
+    puts "Building..."
     triple = LLVM.default_target_triple
     target = LLVM::Target.from_triple(triple)
     target_machine = target.create_target_machine(triple, opt_level: LLVM::CodeGenOptLevel::Aggressive)
