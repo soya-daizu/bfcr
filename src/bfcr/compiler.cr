@@ -47,17 +47,18 @@ class Compiler
     err = LibLLVM.orc_create_lljit(pointerof(jit), builder)
     raise String.new(LibLLVM.get_error_message(err)) if err
 
-    allow_list = Pointer(LibLLVM::OrcSymbolStringPoolEntryRef).malloc(3)
+    allow_list = Pointer(LibLLVM::OrcSymbolStringPoolEntryRef).malloc(4)
     allow_list[0] = LibLLVM.orc_lljit_mangle_and_intern(jit, "getchar")
     allow_list[1] = LibLLVM.orc_lljit_mangle_and_intern(jit, "putchar")
     allow_list[2] = LibLLVM.orc_lljit_mangle_and_intern(jit, "__bzero")
+    allow_list[3] = LibLLVM.orc_lljit_mangle_and_intern(jit, "memset")
 
     generator = uninitialized LibLLVM::OrcDefinitionGeneratorRef
     err = LibLLVM.orc_create_dynamic_library_search_generator_for_process(
       pointerof(generator),
       LibLLVM.orc_lljit_get_global_prefix(jit),
       ->(ctx, sym) {
-        list = ctx.as(LibLLVM::OrcSymbolStringPoolEntryRef*).to_slice(3)
+        list = ctx.as(LibLLVM::OrcSymbolStringPoolEntryRef*).to_slice(4)
         list.each do |p|
           return 1 if sym == p
         end
